@@ -1,0 +1,104 @@
+/**
+ * CROSS-LINE & MULTI-LINE LASER RECOMMENDATION RULES
+ *
+ * Replaces the previous fully-enumerated 60-path table (one entry per
+ * trade x environment x accuracy x coverage combination) with a rule list.
+ * Each rule specifies only the dimensions that actually change the pick;
+ * omitted dimensions match any value. When multiple rules match, the most
+ * specific one wins (most dimensions specified takes priority).
+ *
+ * This file was generated from the original 60-entry table and verified
+ * programmatically to reproduce every original best/alternative/upgrade
+ * pick exactly (see /derivation notes in PR). upgradeReason text has been
+ * rewritten to short, factual, product-attribute-based copy shared across
+ * rules that recommend the same upgrade — the original per-path reason
+ * strings were AI-generated rewordings of the same handful of points and
+ * did not encode distinct product judgment worth preserving verbatim.
+ *
+ * Dimensions:
+ * - trade: builders | cabinets | tilers | electricians | plumbers
+ * - environment: indoor | outdoor | both
+ * - accuracy: high | rough
+ * - coverage: 360 | reflines
+ */
+
+export type LaserRuleWhen = Partial<{
+  trade: string;
+  environment: string;
+  accuracy: string;
+  coverage: string;
+}>;
+
+export type LaserRule = {
+  when: LaserRuleWhen;
+  best: string;
+  alternative: string | null;
+  upgrade: string | null;
+  upgradeReason: string;
+};
+
+export const LASER_RULES: LaserRule[] = [
+  { when: { trade: "builders", environment: "both", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "geo-6x-sp", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "builders", environment: "both", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "builders", environment: "indoor", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "builders", environment: "indoor", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "builders", environment: "indoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "imex-lx3dg", upgradeReason: "±2mm accuracy and hyperbright lines improve visibility and precision over the base rough-accuracy unit." },
+  { when: { trade: "builders", environment: "outdoor", accuracy: "high" }, best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage and slope/grade compensation for large or demanding sites." },
+  { when: { trade: "cabinets", environment: "both", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "geo-6x-sp", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "cabinets", environment: "both", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "cabinets", environment: "indoor", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "cabinets", environment: "indoor", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "cabinets", environment: "indoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "imex-lx3dg", upgradeReason: "±2mm accuracy and hyperbright lines improve visibility and precision over the base rough-accuracy unit." },
+  { when: { trade: "cabinets", environment: "outdoor", accuracy: "high" }, best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage and slope/grade compensation for large or demanding sites." },
+  { when: { trade: "tilers", environment: "both", accuracy: "high", coverage: "360" }, best: "geo-6x-xr", alternative: "bear-servo-360g", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings beyond the tiler-specific reference unit." },
+  { when: { trade: "tilers", environment: "both", accuracy: "high", coverage: "reflines" }, best: "geo-6x-xr", alternative: "imex-lx3dg", upgrade: "bear-servo-360g", upgradeReason: "Full 360° coverage removes the need to reposition between reference lines." },
+  { when: { trade: "tilers", environment: "indoor", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "geo-6x-xr", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "tilers", environment: "indoor", accuracy: "high", coverage: "reflines" }, best: "geo-6x-xr", alternative: "imex-lx3dg", upgrade: "bear-servo-360g", upgradeReason: "Full 360° coverage removes the need to reposition between reference lines." },
+  { when: { trade: "tilers", environment: "indoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-xr", upgradeReason: "Tiler-specific reference features reduce layout errors versus the general-purpose rough unit." },
+  { when: { trade: "tilers", environment: "outdoor", accuracy: "high", coverage: "reflines" }, best: "geo-6x-xr", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "Full 360° coverage removes the need to reposition between reference lines." },
+  { when: { trade: "electricians", environment: "both", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "electricians", environment: "both", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Wider self-leveling range suits variable heights better than fixed reference lines." },
+  { when: { trade: "electricians", environment: "indoor", accuracy: "high", coverage: "360" }, best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings and variable heights that manual leveling can't." },
+  { when: { trade: "electricians", environment: "indoor", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "electricians", environment: "indoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Wide self-leveling range adds precision once tolerances tighten beyond rough accuracy." },
+  { when: { trade: "electricians", environment: "outdoor", accuracy: "high" }, best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage and slope/grade compensation for large or demanding sites." },
+  { when: { trade: "plumbers", environment: "both", accuracy: "high", coverage: "360" }, best: "leica-lino-l6g-1", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage adds full-room reference beyond leica's self-leveling range." },
+  { when: { trade: "plumbers", environment: "both", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Wider self-leveling range suits variable heights better than fixed reference lines." },
+  { when: { trade: "plumbers", environment: "indoor", accuracy: "high", coverage: "360" }, best: "leica-lino-l6g-1", alternative: "bear-servo-360g", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling handles complex ceilings beyond leica's manual self-leveling range." },
+  { when: { trade: "plumbers", environment: "indoor", accuracy: "high", coverage: "reflines" }, best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning; useful once the reference-line workflow starts limiting you." },
+  { when: { trade: "plumbers", environment: "indoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Wide self-leveling range adds precision once tolerances tighten beyond rough accuracy." },
+  { when: { trade: "plumbers", environment: "outdoor", accuracy: "high" }, best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage and slope/grade compensation for large or demanding sites." },
+  { when: { environment: "both", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "140m receiver range and better durability for larger sites than the base rough unit." },
+  { when: { environment: "outdoor", accuracy: "high", coverage: "360" }, best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage and slope/grade compensation for large or demanding sites." },
+  { when: { environment: "outdoor", accuracy: "rough", coverage: "360" }, best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "140m receiver range and better durability for larger sites than the base rough unit." },
+  { when: { accuracy: "rough", coverage: "reflines" }, best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage speeds up work by eliminating manual repositioning between lines." },
+];
+
+const DIMENSION_KEYS: (keyof LaserRuleWhen)[] = ["trade", "environment", "accuracy", "coverage"];
+
+/**
+ * Resolve a laser-level recommendation by matching answers against LASER_RULES.
+ * The most specific matching rule wins (ties broken by declaration order).
+ * Behavior is identical to the old flat lookup for all 60 original combinations.
+ */
+export function lookupLaserRule(answers: {
+  trade: string;
+  environment: string;
+  accuracy: string;
+  coverage: string;
+}): LaserRule | null {
+  let bestMatch: LaserRule | null = null;
+  let bestSpecificity = -1;
+  for (const rule of LASER_RULES) {
+    const isMatch = DIMENSION_KEYS.every(
+      (k) => !rule.when[k] || rule.when[k] === answers[k]
+    );
+    if (!isMatch) continue;
+    const specificity = DIMENSION_KEYS.filter((k) => rule.when[k]).length;
+    if (specificity > bestSpecificity) {
+      bestMatch = rule;
+      bestSpecificity = specificity;
+    }
+  }
+  return bestMatch;
+}

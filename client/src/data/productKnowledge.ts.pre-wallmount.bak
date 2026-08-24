@@ -1,0 +1,704 @@
+/**
+ * Laserman verified product knowledge — source-backed catalogue records only.
+ * Do not add inferred specs: every displayed product attribute must be traceable
+ * to the listed Laserman page or linked manufacturer documentation.
+ */
+
+import { lookupRecommendationPath } from "./recommendationPaths";
+
+export type FinderGoal = "find" | "measure" | "position" | "lasers";
+export type Answers = Record<string, string>;
+
+export type KnowledgeProduct = {
+  id: string;
+  goals: FinderGoal[];
+  brand: string;
+  name: string;
+  category: string;
+  price: number | null;
+  priceText: string;
+  primaryUse: string;
+  whyThisFits: string;
+  industries: string[];
+  keySpecs: string[];
+  included: string[];
+  accessories: string[];
+  designedFor: string;
+  alternatives: string[];
+  upgrade: string[];
+  href: string;
+  sources: string[];
+  confidence: "Verified" | "Expert review";
+  applicable: (answers: Answers) => boolean;
+  score: (answers: Answers) => number;
+};
+
+export const KNOWLEDGE_PRODUCTS: KnowledgeProduct[] = [
+  {
+    id: "mt195", goals: ["find"], brand: "MAJOR TECH", name: "MT195 Cable Locator Circuit Tester", category: "Cable tracing & circuit test", price: 98, priceText: "$98.00 AUD guide price", whyThisFits: "MT195 traces concealed cables and identifies circuit breaks with a transmitter/receiver workflow that gives you precise location control. The complete kit includes test leads and grounding rod for comprehensive circuit diagnostics.", primaryUse: "Trace concealed cables, identify circuit ends and investigate interruptions using a transmitter/receiver workflow.", industries: ["Electrical", "Maintenance", "Communications"], keySpecs: ["125 kHz transmission", "12–400V AC/DC measurement", "0–2.5m single-loop tracking"], included: ["Complete transmitter/receiver kit", "Test leads and grounding rod"], accessories: ["Replacement transmitters", "Additional test accessories"], designedFor: "Concealed cable tracing, circuit end identification, basic cable avoidance", alternatives: ["MT405EX for low-voltage NCV pre-checks"], upgrade: ["C.A.T4+ Kit for dedicated cable-avoidance work"], href: "https://laserman.com.au/products/major-tech-mt195-cable-locator-circuit-testers?srsltid=AfmBOorCduuqgJapMSkQtcV5mmaHVUCW4GNoxFOZo_IpyEBCZjvcEYCk", sources: ["https://laserman.com.au/products/major-tech-mt195-cable-locator-circuit-testers?srsltid=AfmBOorCduuqgJapMSkQtcV5mmaHVUCW4GNoxFOZo_IpyEBCZjvcEYCk", "https://major-tech.com/site/download-datasheet/250"], confidence: "Verified",
+    applicable: (a) => (a["find-type"] === "cables" || a["find-type"] === "electrical") && a["find-trace"] !== "yes",
+    score: (a) => a["find-type"] === "electrical" ? 98 : 90,
+  },
+  {
+    id: "mt405ex", goals: ["find"], brand: "MAJOR TECH", name: "MT405EX Intrinsically Safe IP67 NCV Detector", category: "Non-contact voltage detection", price: 65, priceText: "$65.00 AUD guide price", whyThisFits: "MT405EX detects AC voltage presence non-contact from a safe distance for quick safety confirmation. ATEX Zone 1/2 certification makes it the mandatory choice for hazardous area work.", primaryUse: "Perform a non-contact AC voltage presence pre-check, including in stated Zone 1/2 hazardous environments.", industries: ["Electrical", "Industrial", "Utilities"], keySpecs: ["12–1000V AC detection", "CAT IV 1000V rating", "ATEX Zone 1/2 certified", "IP67 housing"], included: ["NCV detector unit"], accessories: [], designedFor: "Pre-check tool for electrical work, hazardous environments, mandatory safety verification", alternatives: ["MT400 for 50–600 V AC NCV checking"], upgrade: ["MT195 when tracing requires transmitter/receiver equipment"], href: "https://laserman.com.au/products/major-tech-mt405ex-intrinsically-safe-ip67-ncv-detector", sources: ["https://laserman.com.au/products/major-tech-mt405ex-intrinsically-safe-ip67-ncv-detector", "https://www.major-tech.com/site/download-datasheet/325"], confidence: "Verified",
+    applicable: (a) => a["find-type"] === "electrical",
+    score: (a) => 97,
+  },
+  {
+    id: "cat4", goals: ["find"], brand: "RADIODETECTION", name: "C.A.T4+ KIT Underground Services Locator", category: "Cable avoidance", price: 4999, priceText: "$4,999.00 AUD guide price", whyThisFits: "C.A.T4+ detects cables and metallic pipes reliably for standard-depth burial work with Power, Radio, Genny and Avoidance modes. Depth measurement and clamp flexibility make it the practical choice for excavation safety.", primaryUse: "Cable and metallic pipe avoidance and active trace work for buried utilities before excavation.", industries: ["Construction", "Civil", "Electrical", "Plumbing"], keySpecs: ["C.A.T4+ receiver and Genny4 transmitter", "Power, Radio, Genny and Avoidance modes", "Detects cables and metallic pipes", "Depth measurement capability"], included: ["C.A.T4+ receiver", "Genny4 transmitter", "50mm or 100mm clamp accessories"], accessories: ["Sonde/pipe-tracer for non-metallic pipes (optional)"], designedFor: "Buried utility avoidance before excavation, construction site verification", alternatives: ["MT195 for circuit tracing rather than dedicated site avoidance"], upgrade: ["RD7200 kit for active tracing or broader utility / pipe configurations"], href: "https://laserman.com.au/products/radiodetection-cat4-kit-w-signal-clamp-und-services-locator", sources: ["https://laserman.com.au/products/radiodetection-cat4-kit-w-signal-clamp-und-services-locator", "https://www.radiodetection.com/en-us/products/cable-avoidance/cat4-and-genny4-range"], confidence: "Verified",
+    applicable: (a) => (a["find-type"] === "cables" || a["find-type"] === "pipes") && a["find-depth"] !== "deep" && a["find-trace"] !== "yes",
+    score: (a) => a["find-type"] === "cables" ? 98 : 85,
+  },
+  {
+    id: "cscope", goals: ["find"], brand: "C-SCOPE", name: "C-SCOPE MXL4D + MXT4D Locator Kit", category: "Active pipe & cable tracing", price: 7695, priceText: "$7,695.00 AUD guide price", whyThisFits: "C-SCOPE's multi-frequency tracing pinpoints cables and pipes when standard approaches don't work, with depth and signal-current measurement for precise location data. Ideal for complex utility layouts and utility company operations.", primaryUse: "Multi-frequency active tracing, pinpointing and depth-focused pipe and cable location.", industries: ["Civil", "Construction", "Utilities", "Survey"], keySpecs: ["Multi-frequency receiver/transmitter", "Depth and signal-current measurement", "Data logging", "Daily self-test"], included: ["MXL4D receiver", "MXT4D transmitter", "Standard accessories"], accessories: ["Sonde/pipe-tracer for non-metallic pipes (optional, required for non-metallic work)"], designedFor: "Complex utility layouts, multi-frequency active tracing, utility company operations", alternatives: ["C.A.T4+ for cable-avoidance workflow"], upgrade: ["RD7200 kit for wider utility configuration"], href: "https://laserman.com.au/products/c-scope-locator-kit-w-mxl4d-receiver-mxt4d-transmitter", sources: ["https://laserman.com.au/products/c-scope-locator-kit-w-mxl4d-receiver-mxt4d-transmitter"], confidence: "Verified",
+    applicable: (a) => (a["find-type"] === "cables" || a["find-type"] === "pipes") && (a["find-trace"] === "yes" || a["find-depth"] === "deep"),
+    score: (a) => a["find-trace"] === "yes" ? 99 : 95,
+  },
+  {
+    id: "rd7200", goals: ["find"], brand: "RADIODETECTION", name: "RD7200 Cable & Pipe Locator Kit", category: "Professional utility locating", price: 10379, priceText: "$10,379.00 AUD guide price", whyThisFits: "RD7200 handles deep utility work and complex scenarios with 8 active and 3 passive frequencies for professional-grade precision. TruDepth readout and fault-finding capability make it essential for large construction projects.", primaryUse: "Professional cable and pipe locating with transmitters, clamps, sonde and fault-find configuration options.", industries: ["Utilities", "Construction", "Water", "Telecoms"], keySpecs: ["8 active + 3 passive frequencies", "IP65 housing", "TruDepth depth/current readout", "A-Frame fault-finding", "FlexiTrace sondes"], included: ["Receiver unit", "TX5/TX10 transmitter options", "Clamp accessories"], accessories: ["A-Frame for fault-finding config", "FlexiTrace sondes", "Compatible sonde/tracer (sold separately)"], designedFor: "Professional utility locating, fault-finding, non-metallic pipe detection, large construction projects", alternatives: ["C.Scope MXL4D + MXT4D kit"], upgrade: ["Expert review for RD8200 precision locating requirements"], href: "https://laserman.com.au/products/radiodetection-rd7200-cable-and-pipe-locator-tx5tx10-transmitter-kits", sources: ["https://laserman.com.au/products/radiodetection-rd7200-cable-and-pipe-locator-tx5tx10-transmitter-kits", "https://www.radiodetection.com/sites/default/files/product-downloads/rd7200-br-eng.pdf"], confidence: "Verified",
+    applicable: (a) => (a["find-type"] === "cables" || a["find-type"] === "pipes") && a["find-depth"] === "deep",
+    score: (a) => 97,
+  },
+  {
+    id: "me5", goals: ["measure"], brand: "TRAMEX", name: "Moisture Encounter ME5", category: "Non-destructive moisture measurement", price: 1030, priceText: "$1,030.00 AUD guide price", whyThisFits: "ME5 provides portable non-destructive moisture checking with dual-depth penetration for quick damage assessment in wood and plaster. Compact design makes it ideal for building inspections when portable moisture scanning is needed.", primaryUse: "Portable non-destructive moisture detection through building finishes. Dual-depth penetration for mapping suspected moisture in wood, plaster and building materials.", industries: ["Building inspection", "Restoration", "Property maintenance"], keySpecs: ["10mm shallow / 30mm deep penetration", "5–30% wood scale", "0–100 building-material scale", "Compact and portable"], included: ["ME5 moisture meter unit", "Optional calibration box available"], accessories: ["Optional AP-ME calibration box", "Extension handle", "Slide protectors", "Holster", "Replacement probes"], designedFor: "Building inspection, moisture detection through finishes, wood and plaster assessment", alternatives: ["CMEX5 for concrete-specific work"], upgrade: ["MEX5 for digital recording and psychrometrics"], href: "https://laserman.com.au/products/tramex-me5-moisture-encounter-dual-depth-penetration", sources: ["https://laserman.com.au/products/tramex-me5-moisture-encounter-dual-depth-penetration"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "moisture",
+    score: (a) => {
+      let score = 80;
+      if (a["measure-range"] === "short") score += 15;
+      if (a["measure-job"] === "inspection") score += 5;
+      return score;
+    },
+  },
+  {
+    id: "mex5", goals: ["measure"], brand: "TRAMEX", name: "Moisture Encounter MEX5", category: "Digital moisture & hygrometer measurement", price: 1650, priceText: "$1,649.99 AUD guide price", whyThisFits: "MEX5 provides digital moisture inspection with built-in hygrometer and digital recording for professional documentation and reporting. The digital capability with data logging makes it essential when documented readings are required.", primaryUse: "Digital moisture inspection with built-in hygrometer and optional probes for documented building assessment and concrete RH testing.", industries: ["Building inspection", "Flooring", "Restoration"], keySpecs: ["9mm shallow / 30mm deep penetration", "Built-in hygrometer with psychrometrics", "Optional Hygro-i2 RH probes (±2% @ 25°C)", "Digital recording and reporting"], included: ["MEX5 digital moisture meter unit", "Built-in hygrometer"], accessories: ["Hygro-i2 RH probes for in-situ testing (separate cost)", "Optional pin probes", "AP-ME kit"], designedFor: "Professional building inspections, remediation documentation, concrete RH testing", alternatives: ["ME5 for basic moisture screening"], upgrade: ["CMEX5 for concrete-specific professional kit"], href: "https://laserman.com.au/products/tramex-mex5-moisture-encounter?_pos=1&_sid=eeaef51e7&_ss=r", sources: ["https://laserman.com.au/products/tramex-mex5-moisture-encounter?_pos=1&_sid=eeaef51e7&_ss=r"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "moisture",
+    score: (a) => {
+      let score = 85;
+      if (a["measure-job"] === "documentation") score += 10;
+      if (a["measure-job"] === "inspection") score += 5;
+      return score;
+    },
+  },
+  {
+    id: "cme5", goals: ["measure"], brand: "TRAMEX", name: "CME5 Concrete Encounter", category: "Budget concrete moisture testing", price: 1140, priceText: "$1,140.00 AUD guide price", whyThisFits: "CME5 is the budget-friendly non-destructive concrete moisture meter with Bluetooth app connectivity. Fast analog readings to 20mm depth deliver reliable pre-coating readiness assessment without the professional kit overhead.", primaryUse: "Non-destructive concrete moisture measurement with instant analog readings and Bluetooth data reporting to mobile devices.", industries: ["Flooring", "Concrete", "Coatings"], keySpecs: ["Non-destructive measurement", "0–6% moisture range for concrete", "~20mm depth penetration", "Bluetooth app connectivity (iOS/Android)", "Analogue dial display", "Carbide Method equivalent readings"], included: ["CME5 concrete moisture meter unit", "2×AA LR6 alkaline batteries"], accessories: ["Replacement batteries", "Tripod/mounting options"], designedFor: "Concrete flooring pre-coating readiness checks, moisture mapping, budget-conscious assessment projects", alternatives: ["MEX5 for general building materials"], upgrade: ["CMEX5 for professional combo kit with full documentation"], href: "https://laserman.com.au/products/tramex-concrete-encounter-cme5?srsltid=AfmBOooEZRIIcGFPUaoiyVOX7U5hDFVz9YQ054LI6HlsvGMevTVASulQ", sources: ["https://laserman.com.au/products/tramex-concrete-encounter-cme5?srsltid=AfmBOooEZRIIcGFPUaoiyVOX7U5hDFVz9YQ054LI6HlsvGMevTVASulQ"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "moisture",
+    score: (a) => {
+      let score = 85;
+      if (a["measure-job"] === "documentation") score += 3;
+      return score;
+    },
+  },
+  {
+    id: "cmex5", goals: ["measure"], brand: "TRAMEX", name: "CMEX5 Concrete Moisture Encounter Professional Combo Kit", category: "Professional concrete moisture testing", price: 1769, priceText: "$1,769.00 AUD guide price", whyThisFits: "CMEX5 is purpose-built for concrete moisture testing with professional combo kit components for pre-coating readiness verification. The kit includes all industry-standard testing tools needed for compliance documentation.", primaryUse: "Professional concrete and flooring moisture assessment kit for pre-coating readiness checks and compliance documentation.", industries: ["Flooring", "Concrete", "Coatings"], keySpecs: ["Concrete-focused moisture assessment", "Professional combo kit", "Industry-standard testing tools", "Pre-coating readiness checks"], included: ["Professional combo kit components", "Industry-standard testing accessories", "Documentation tools"], accessories: ["Additional probes", "Replacement components"], designedFor: "Concrete flooring assessment, pre-coating readiness verification, compliance documentation", alternatives: ["CME5 for budget concrete work", "MEX5 for broader building-material screening"], upgrade: ["Expert review for project-specific concrete RH documentation"], href: "https://laserman.com.au/products/tramex-cmex5-concrete-moisture-encounter-professional-combo-kit", sources: ["https://laserman.com.au/products/tramex-cmex5-concrete-moisture-encounter-professional-combo-kit"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "moisture",
+    score: (a) => {
+      let score = 90;
+      if (a["measure-range"] === "medium") score += 8;
+      if (a["measure-job"] === "documentation") score += 5;
+      return score;
+    },
+  },
+  {
+    id: "b20s", goals: ["measure"], brand: "HIKMICRO", name: "B20S Thermal Imaging Camera", category: "Thermal imaging", price: 989, priceText: "$989.00 AUD guide price", whyThisFits: "B20S captures full thermal images for HVAC, electrical, and building inspection to identify heat loss, hot spots, and equipment faults. The 256x192 resolution with <40mK thermal sensitivity lets you spot problems visual inspection misses.", primaryUse: "Identify temperature patterns and anomalies across a scene for building, HVAC, electrical and inspection workflows. Professional thermal imaging for fault detection.", industries: ["Building inspection", "HVAC", "Electrical maintenance"], keySpecs: ["256×192 IR detector", "<40 mK NETD", "−20–550°C range", "IP54 housing", "~6h runtime", "¼″-20 tripod mount"], included: ["B20S thermal camera unit", "Tripod mounting hardware"], accessories: ["Tripod accessories", "Lens cleaning supplies", "Replacement battery", "Carrying case"], designedFor: "Building thermal inspection, HVAC diagnostics, electrical fault detection, energy audits", alternatives: ["ME5 + B20S building-inspection combo", "MT691 for spot-temperature checks"], upgrade: ["Fluke 568EX for verified hazardous-area measurement"], href: "https://laserman.com.au/products/hikmicro-b20s-thermal-imaging-camera", sources: ["https://laserman.com.au/products/hikmicro-b20s-thermal-imaging-camera", "https://webassets.hikmicrotech.com/global/asset/50586362eddb480d9c8b48e7a03fb3b8.pdf"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "temperature" || (a["measure-type"] === "moisture" && a["measure-job"] === "inspection"),
+    score: (a) => a["measure-type"] === "temperature" ? 98 : 90,
+  },
+  {
+    id: "distod5", goals: ["measure"], brand: "LEICA GEOSYSTEMS", name: "DISTO D5 Laser Distance Meter", category: "Premium compact laser distance measurement", price: 880, priceText: "$880.00 AUD guide price", whyThisFits: "DISTO D5 delivers professional precision with 200m range, ±1.0mm accuracy, and integrated zoom camera for precise laser targeting on a bright 2.4\" display. Smart Horizontal Mode and X-Range Power Technology ensure reliable measurements in challenging conditions—compact power for serious measurement work.", primaryUse: "Professional distance measurement up to 200m with integrated camera zoom for precise laser point targeting and slope measurement for architectural and construction work.", industries: ["Construction", "Survey", "Architecture"], keySpecs: ["0.05–200m range (favourable conditions)", "±1.0mm accuracy", "4x zoom camera for laser targeting", "2.4\" IPS display", "360° tilt measurement (±0.2°)", "Bluetooth 5.0", "IP54 (dust/splash protected)", "Up to 5,000 measurements per charge"], included: ["DISTO D5 laser distance meter unit", "Hand loop", "Pouch", "USB cable", "Calibration certificate"], accessories: ["Replacement batteries (Li-Ion)", "Carrying case", "Tripod bracket"], designedFor: "Professional measurement, architectural work, façade surveys, slope measurement, precision work with camera-assisted targeting", alternatives: ["DISTO X3 for construction site work"], upgrade: ["DISTO X6 for touchscreen and 250m range"], href: "https://laserman.com.au/products/leica-disto-d5-laser-distance-meter?_pos=9&_sid=3ae7ed0d2&_ss=r", sources: ["https://laserman.com.au/products/leica-disto-d5-laser-distance-meter?_pos=9&_sid=3ae7ed0d2&_ss=r"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "long" ? 92 : a["measure-range"] === "medium" ? 85 : 60,
+  },
+  {
+    id: "distox6", goals: ["measure"], brand: "LEICA GEOSYSTEMS", name: "DISTO X6 Laser Distance Meter", category: "Premium laser distance measurement", price: 1089, priceText: "$1,089.00 AUD guide price", whyThisFits: "DISTO X6 is the professional-grade laser distance meter with 250m range, ±1.0mm accuracy, and 2.8\" touchscreen display. The integrated zoom camera for laser targeting, IP65 rating, and memory for 300 reports make it ideal for comprehensive site surveys and documentation.", primaryUse: "Professional distance measurement up to 250m with touchscreen interface, integrated camera zoom for precision targeting, and comprehensive data management.", industries: ["Construction", "Survey", "Architecture", "Professional fitout"], keySpecs: ["0.05–250m range (favourable conditions)", "±1.0mm accuracy", "2.8\" IPS touchscreen display", "4x zoom camera for laser targeting", "360° tilt sensor (±0.2° accuracy)", "IP65 (dust/water protected)", "2m drop tested", "Memory for 300 reports", "Bluetooth 5.0 connectivity", "Li-Ion rechargeable battery (up to 8h)"], included: ["DISTO X6 laser distance meter unit", "Hand loop", "Pouch", "USB cable", "Calibration certificate"], accessories: ["Replacement batteries", "Carrying case", "DST 360-X adapter for P2P measurements", "DISTO Plan app (iOS/Android)"], designedFor: "Professional site surveys, façade measurement, comprehensive measurement documentation, professional distance work with camera-assisted laser targeting", alternatives: ["DISTO D5 for compact 200m operation"], upgrade: ["Expert review for specialized survey applications"], href: "https://laserman.com.au/collections/height-and-distance-measurer-tapes-wheels-lasers-and-poles/products/leica-disto-x6-laser-distance-meter", sources: ["https://laserman.com.au/collections/height-and-distance-measurer-tapes-wheels-lasers-and-poles/products/leica-disto-x6-laser-distance-meter"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "long" ? 95 : a["measure-range"] === "medium" ? 85 : 60,
+  },
+  {
+    id: "mt691", goals: ["measure"], brand: "MAJOR TECH", name: "MT691 650°C Dual Laser Infrared Thermometer", category: "Infrared spot temperature", price: 149, priceText: "$149.00 AUD guide price", whyThisFits: "MT691 delivers quick one-shot temperature readings with dual laser targeting for precise spot checks on equipment and surfaces. The 12:1 distance-to-spot ratio lets you measure from a safe distance without thermal imaging bulk.", primaryUse: "Fast non-contact single-point temperature checks for maintenance, HVAC, and mechanical work where spot readings are sufficient.", industries: ["Maintenance", "HVAC", "Mechanical"], keySpecs: ["−50–650°C range", "12:1 distance-to-spot ratio", "IP54 housing", "2m drop tested", "Dual laser sighting"], included: ["MT691 infrared thermometer unit with dual laser sighting"], accessories: ["Replacement battery", "Carrying case", "Lens cleaning kit", "Calibration accessories"], designedFor: "Maintenance temperature checks, HVAC verification, mechanical equipment monitoring", alternatives: ["B20S for full thermal imaging"], upgrade: ["Fluke 568EX for hazardous-area IR/contact measurement"], href: "https://laserman.com.au/products/major-tech-mt691-650-c-dual-laser-infrared-thermometer", sources: ["https://laserman.com.au/products/major-tech-mt691-650-c-dual-laser-infrared-thermometer", "https://www.major-tech.com/site/download-datasheet/288"], confidence: "Expert review",
+    applicable: (a) => a["measure-type"] === "temperature",
+    score: (a) => a["measure-job"] === "site" ? 90 : 70,
+  },
+  {
+    id: "geotape", goals: ["measure"], brand: "GEO-FENNEL", name: "Geotape 2in1 Laser Distance Meter", category: "Entry-level compact laser distance measurement", price: 77, priceText: "$77.00 AUD guide price", whyThisFits: "Geotape 2in1 combines a 20m laser distance meter with a built-in 5m tape measure in one pocket-sized tool. Perfect for quick measurements in tight spaces—affordable entry-level option for trades and facilities work without complexity.", primaryUse: "Budget-friendly distance measurement for interior fitout and trades work with integrated tape measure backup.", industries: ["Fitout", "Facilities", "Trades"], keySpecs: ["0.05–20m laser range", "±2mm laser accuracy", "Built-in 5m tape measure", "Ergonomic pocket design", "USB rechargeable Li-Ion battery", "Backlit white-on-black display"], included: ["Geotape 2in1 unit", "USB charging cable", "Built-in Li-Ion battery"], accessories: ["Replacement batteries", "Metal belt clip"], designedFor: "Interior measurements, trades work, quick distance checks, budget-conscious projects", alternatives: ["DISTO X1 for professional-grade durability"], upgrade: ["DISTO X3 for extended range and app integration"], href: "https://laserman.com.au/collections/height-and-distance-measurer-tapes-wheels-lasers-and-poles/products/geo-fennel-geotape-2in1-laser-distance-meter", sources: ["https://laserman.com.au/collections/height-and-distance-measurer-tapes-wheels-lasers-and-poles/products/geo-fennel-geotape-2in1-laser-distance-meter"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "short" ? 92 : a["measure-range"] === "medium" ? 50 : 20,
+  },
+  {
+    id: "distox1", goals: ["measure"], brand: "LEICA GEOSYSTEMS", name: "DISTO X1 Laser Distance Meter", category: "Rugged compact laser distance measurement", price: 264, priceText: "$264.00 AUD guide price", whyThisFits: "DISTO X1 delivers robust 100m measurement in tough construction conditions with IP65 protection and 2m drop testing. NFC connectivity to DISTO Plan app plus Bluetooth enables quick data transfer and documentation on-site.", primaryUse: "Rugged distance measurement for construction site conditions with NFC/Bluetooth app connectivity and reliable IP65 durability.", industries: ["Construction", "Fitout", "Facilities"], keySpecs: ["0.05–100m range", "±1.5mm accuracy", "IP65 (dust/water protected)", "2m drop tested", "NFC + Bluetooth 6.0 connectivity", "Illuminated display"], included: ["DISTO X1 laser distance meter unit", "Hand loop", "Pouch", "2×AAA batteries"], accessories: ["Replacement batteries", "Carrying case", "Tripod bracket"], designedFor: "Construction site measurement, rugged field work, indoor/outdoor versatility with app integration", alternatives: ["DISTO X3 for extended 150m range"], upgrade: ["DISTO D5 for premium touchscreen and advanced features"], href: "https://laserman.com.au/products/leica-disto-x1-laser-distance-meter-100m-ip65-nfc?_pos=12&_sid=3ae7ed0d2&_ss=r", sources: ["https://laserman.com.au/products/leica-disto-x1-laser-distance-meter-100m-ip65-nfc?_pos=12&_sid=3ae7ed0d2&_ss=r"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "short" ? 90 : a["measure-range"] === "medium" ? 85 : 50,
+  },
+  {
+    id: "distox3", goals: ["measure"], brand: "LEICA GEOSYSTEMS", name: "DISTO X3 Laser Distance Meter", category: "Professional construction laser distance measurement", price: 550, priceText: "$550.00 AUD guide price", whyThisFits: "DISTO X3 extends range to 150m with ±1.0mm accuracy and Smart Room function for instant floor plan creation via DISTO Plan app. IP65 rated and 2m drop tested for construction site durability—professional measurement with documentation built-in.", primaryUse: "Professional distance measurement up to 150m for construction sites with Smart Room floor plan generation and app-based documentation.", industries: ["Construction", "Fitout", "Survey"], keySpecs: ["0.05–150m range", "±1.0mm accuracy", "IP65 (dust/water protected)", "2m drop tested", "Smart Room floor plan function", "Bluetooth Smart connectivity", "Tilt sensor (±0.2° accuracy)"], included: ["DISTO X3 laser distance meter unit", "Hand loop", "Pouch", "2×AA alkaline batteries"], accessories: ["Replacement batteries", "Leica DST 360 adapter (optional)", "Carrying case", "Tripod bracket"], designedFor: "Construction site measurement, floor plan generation, area/volume calculations, professional site documentation", alternatives: ["DISTO X1 for compact 100m work"], upgrade: ["DISTO D810 Touch for camera integration and touchscreen controls"], href: "https://laserman.com.au/products/leica-disto-x3-laser-measurer-laser-tape-x3-distance-measure-laser-measuring-tools?_pos=2&_sid=3ae7ed0d2&_ss=r", sources: ["https://laserman.com.au/products/leica-disto-x3-laser-measurer-laser-tape-x3-distance-measure-laser-measuring-tools?_pos=2&_sid=3ae7ed0d2&_ss=r"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "medium" ? 95 : a["measure-range"] === "short" ? 75 : 70,
+  },
+  {
+    id: "x6", goals: ["measure"], brand: "LEICA DISTO", name: "DISTO X6 Laser Distance Meter", category: "Long-range connected laser measurement", price: 1089, priceText: "$1,089.00 AUD guide price", whyThisFits: "X6 delivers professional long-range measurement to 250m with 4x digital pointfinder for surveys and façade work where precision matters. IP65 rating and 2m drop test durability make it the trusted choice for outdoor professionals.", primaryUse: "Professional long-range measurement to 250 m with digital pointfinder and connected documentation. Ideal for site surveys, façade work and outdoor professional applications.", industries: ["Survey", "Construction", "Façade", "Professional fitout"], keySpecs: ["0.05–250m range (150m unfavourable)", "±1.0/±2.0mm accuracy", "4x digital pointfinder", "IP65 housing", "2m drop tested"], included: ["DISTO X6 laser distance meter", "Hand loop", "Carrying pouch", "USB cable", "Calibration certificate"], accessories: ["DST 360-X (optional)", "TRI 120 for point-to-point workflows", "Replacement battery", "Carrying case"], designedFor: "Long-range site surveys, façade measurement, professional architectural work, property surveys", alternatives: ["MT152 for lower budget 100 m work"], upgrade: ["X6 P2P Kit with DST 360-X and TRI 120"], href: "https://laserman.com.au/products/leica-disto-x6-laser-distance-meter", sources: ["https://laserman.com.au/products/leica-disto-x6-laser-distance-meter", "https://cdn.shopify.com/s/files/1/0200/7988/files/X6_-Data_Sheet.pdf?v=1713950391"], confidence: "Verified",
+    applicable: (a) => a["measure-type"] === "distance",
+    score: (a) => a["measure-range"] === "long" ? 99 : a["measure-range"] === "medium" ? 80 : 40,
+  },
+  {
+    id: "topcon", goals: ["position"], brand: "TOPCON", name: "RL-H5B Rotating Laser with LS-80X Receiver", category: "Horizontal rotary laser", price: 1495, priceText: "$1,495.00 AUD guide price", whyThisFits: "Topcon RL-H5B is the proven construction standard for site leveling with 400m working diameter and reliable self-levelling. The robust receiver and ~100h battery life make it dependable for typical excavation and concrete grade work.", primaryUse: "Set a durable horizontal reference for grading, excavation, site preparation and concrete work. Also provides outdoor cross-line laser reference for general layout and positioning tasks on construction sites.", industries: ["Construction", "Earthworks", "Concrete", "Factory positioning"], keySpecs: ["400m working diameter", "±20 arc sec / ±2.8mm @ 30m accuracy", "±5° self-levelling", "IP66 housing", "~100h battery life"], included: ["Rotating laser unit", "LS-80X receiver", "Hard carry case", "4×D-cell dry batteries"], accessories: ["Replacement batteries", "Additional receivers", "Tripod/mounting brackets"], designedFor: "Grading and excavation layout, site preparation, concrete work reference", alternatives: ["Expert review for vertical line lasers"], upgrade: ["Expert review for a verified automatic grade laser"], href: "https://laserman.com.au/products/topcon-rl-h5b-rotating-laser-dry-batt-standard-ls-80x-receiver", sources: ["https://laserman.com.au/products/topcon-rl-h5b-rotating-laser-dry-batt-standard-ls-80x-receiver", "https://www.topconpositioning.com/content/dam/topcon_digital_asset_hub/collateral/brochures/topcon_rl-h5b_7010-2248_enEU23broc.pdf"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "levels",
+    score: (a) => {
+      let score = 85;
+      if (a["position-environment"] === "outdoor") score += 10;
+      if (a["position-range"] === "medium") score += 5;
+      if (a["position-accuracy"] === "general") score += 5;
+      return Math.min(score, 98);
+    },
+  },
+  {
+    id: "topcon-h5a", goals: ["position"], brand: "TOPCON", name: "RL-H5A Rotating Laser with LS-80L Receiver", category: "Horizontal rotary laser with slope matching", price: 1945, priceText: "$1,945.00 AUD guide price", whyThisFits: "Topcon RL-H5A adds integrated slope matching to the proven standard for sites requiring slope compensation—faster setup and precise results on uneven terrain. Out-of-level alarm and rechargeable battery options add convenience.", primaryUse: "Horizontal reference with integrated slope matching feature for grade and slope work. Ideal for construction sites requiring slope checking on all work types.", industries: ["Construction", "Earthworks", "Concrete", "Site preparation"], keySpecs: ["±5° self-levelling", "Slope matching feature (unique to RL-H5A)", "Out-of-level alarm", "IP66 housing", "Rechargeable/alkaline battery options"], included: ["Rotating laser unit", "LS-80L receiver", "Hard carry case", "4×D-cell batteries"], accessories: ["Rechargeable battery option", "Additional receivers", "Tripod/mounting brackets"], designedFor: "Grade and slope work, slope matching verification, excavation with slope requirements", alternatives: ["Topcon RL-H5B for standard leveling", "PLS H2 Z for compact option"], upgrade: ["geo-FENNEL FL115H for high-accuracy long-range work"], href: "https://laserman.com.au/products/topcon-rl-h5a-rotating-laser-level-rechargeable-standard-ls80l-receiver-rotary-construction-laser-level", sources: ["https://laserman.com.au/products/topcon-rl-h5a-rotating-laser-level-rechargeable-standard-ls80l-receiver-rotary-construction-laser-level", "https://laserman.com.au/pages/rotary-lasers-quick-comparison-rotating-laser-slope-matching"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "levels" && a["position-accuracy"] !== "survey",
+    score: (a) => {
+      let score = 90;
+      if (a["position-environment"] === "outdoor") score += 5;
+      if (a["position-range"] === "medium") score += 3;
+      return Math.min(score, 98);
+    },
+  },
+  {
+    id: "geofennel-fl105h", goals: ["position"], brand: "GEO-FENNEL", name: "FL-105H Horizontal Rotating Laser Level", category: "Entry-level rotary laser", price: 1350, priceText: "$1,350.00 AUD guide price", whyThisFits: "Geo-FENNEL FL-105H delivers reliable, rugged entry-level performance for residential and landscaping grading work. The compact design and self-levelling capability make it ideal for straightforward site leveling without complexity.", primaryUse: "Entry-level rotary laser for general construction grading, leveling, and layout work. Ideal for residential contractors, landscapers, and general construction sites requiring simple, rugged performance.", industries: ["Construction", "Landscaping", "Residential", "General contracting"], keySpecs: ["500m working range", "Self-leveling within ±5°", "IP65 rated", "Compact design", "Reliable performance"], included: ["FL-105H laser unit", "Receiver system", "Standard accessories", "Carry case", "Batteries"], accessories: ["Extended battery packs available"], designedFor: "Construction site layout, general horizontal reference, grading and excavation", alternatives: ["Topcon RL-H5B for proven construction standard"], upgrade: ["Geo-FENNEL FL115H for higher accuracy", "Spectra Precision LL500 for all-day battery life"], href: "https://laserman.com.au/products/geo-fennel-fl-105h-horizontal-rotating-laser-level-rotary-laser-level?srsltid=AfmBOoqbPv6L9I4G3O0CWOKCm-L8UhbzulhEi-Nkq7Cc05Jk1POXxmST", sources: ["https://laserman.com.au/products/geo-fennel-fl-105h-horizontal-rotating-laser-level-rotary-laser-level?srsltid=AfmBOoqbPv6L9I4G3O0CWOKCm-L8UhbzulhEi-Nkq7Cc05Jk1POXxmST"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "levels" && a["position-range"] === "short",
+    score: (a) => {
+      let score = 85;
+      if (a["position-accuracy"] === "general") score += 10;
+      if (a["position-range"] === "unsure") score += 8;
+      if (a["position-environment"] === "outdoor") score += 5;
+      return Math.min(score, 95);
+    },
+  },
+  {
+    id: "geofennel-fl115h", goals: ["position"], brand: "GEO-FENNEL", name: "FL115H Horizontal Rotating Laser Level with FR 77-MM Receiver", category: "High-accuracy rotary laser", price: 2000, priceText: "$2,000.00 AUD guide price", whyThisFits: "Geo-FENNEL FL115H delivers survey-grade ±0.5mm/30m precision with 1200m range ideal for machine control and commercial job sites. The 800 RPM rotation and 26h Li-Ion battery make it essential for high-precision grade work across large areas.", primaryUse: "Professional-grade rotary laser for long-distance commercial job sites. Highest accuracy in its class at ±0.5mm@30m with 1200m working range. Ideal for machine control solutions and high-precision grade work.", industries: ["Construction", "Civil engineering", "Commercial sites", "Machine control"], keySpecs: ["±0.5mm @ 30m accuracy (highest in category)", "1200m working range", "800 RPM for machine control", "~26h Li-Ion battery", "Out-of-level alarm"], included: ["FL115H laser unit", "FR 77-MM receiver", "Rechargeable Li-Ion batteries and charger", "Carry case"], accessories: ["Replacement Li-Ion batteries", "Additional receivers", "Machine control interface modules"], designedFor: "Commercial job sites, machine control integration, high-precision grading, large-scale construction", alternatives: ["Topcon RL-H5A for general construction", "Spectra Precision LL500 for one-person operation"], upgrade: ["Expert review for specialized survey applications"], href: "https://laserman.com.au/products/geo-fennel-fl-115h-horizontal-rotating-laser-level-with-receiver", sources: ["https://laserman.com.au/products/geo-fennel-fl-115h-horizontal-rotating-laser-level-with-receiver", "https://laserman.com.au/pages/rotary-lasers-quick-comparison-rotating-laser-slope-matching"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "levels",
+    score: (a) => {
+      let score = 92;
+      if (a["position-range"] === "long") score += 8;
+      if (a["position-accuracy"] === "survey" || a["position-accuracy"] === "specified") score += 5;
+      if (a["position-environment"] === "outdoor") score += 3;
+      return Math.min(score, 99);
+    },
+  },
+  {
+    id: "spectra-ll500", goals: ["position"], brand: "SPECTRA PRECISION", name: "LL500 Exterior Laser Level with HL700 Receiver", category: "One-person rotary laser system", price: 3190, priceText: "$3,190.00 AUD guide price", whyThisFits: "Spectra LL500 delivers 175-hour battery runtime for all-day work without mid-project battery changes—the professional standard for efficiency. One-person operation with 500m range and ±1.5mm accuracy make it ideal for productivity-focused contractors.", primaryUse: "Professional one-person leveling system for longer-range work. Robust and ergonomic with 175-hour battery runtime. Ideal for increasing efficiency and productivity on site.", industries: ["Construction", "Civil engineering", "Professional contractors"], keySpecs: ["500m working range", "±1.5mm @ 30m accuracy", "175-hour battery runtime (NiMH batteries)", "One-person operation capability", "Robust and ergonomic design"], included: ["LL500 laser unit", "HL700 receiver with C70 rod clamp", "NiMH batteries", "Hard carry case"], accessories: ["Replacement NiMH batteries", "Additional receivers", "Tripod systems", "Extended carry cases"], designedFor: "One-person grading/leveling, long-duration field work, solo operator projects", alternatives: ["Topcon RL-H5A for slope matching", "geo-FENNEL FL115H for higher accuracy"], upgrade: ["Expert review for automated grade systems"], href: "https://laserman.com.au/products/spectra-precision-ll500-rotating-laser-level-with-hl-700-receiver-rotary-laser?srsltid=AfmBOortEkwlhuWyXYZl6doNZs4XXKRk8c-PuA9h_Wfw81Ql0kN5WD4P", sources: ["https://laserman.com.au/products/spectra-precision-ll500-rotating-laser-level-with-hl-700-receiver-rotary-laser?srsltid=AfmBOortEkwlhuWyXYZl6doNZs4XXKRk8c-PuA9h_Wfw81Ql0kN5WD4P", "https://laserman.com.au/pages/rotary-lasers-quick-comparison-rotating-laser-slope-matching"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "levels",
+    score: (a) => {
+      let score = 88;
+      if (a["position-range"] === "medium") score += 10;
+      if (a["position-environment"] === "outdoor") score += 5;
+      if (a["position-accuracy"] === "specified") score += 3;
+      return Math.min(score, 98);
+    },
+  },
+  {
+    id: "ts01", goals: ["position"], brand: "LEICA GEOSYSTEMS", name: "TS01 Manual Total Station", category: "Survey total station", price: 8800, priceText: "$8,800.00 AUD guide price", whyThisFits: "TS01 delivers survey-grade precision for boundary work and property surveys with 5-second angular accuracy and 3000m prism range. Manual operation gives you direct control for detailed surveying and coordinate documentation.", primaryUse: "Manual survey, layout and mapping with prism and reflectorless measurement.", industries: ["Survey", "Layout", "Mapping"], keySpecs: ["5\" angular accuracy", "3000m prism / 500m non-prism range", "2mm+2ppm prism accuracy", "IP55 housing", "Manual operation"], included: ["TS01 total station instrument", "Carrying case", "Standard accessories"], accessories: ["Survey pole (sold separately)", "Prism target (sold separately)", "Tripod systems", "Carrying cases"], designedFor: "Professional land surveying, site layout, precision mapping, property boundary surveys", alternatives: ["Expert review for GNSS requirements"], upgrade: ["Leica iCON iCB robotic range (price not verified)"], href: "https://laserman.com.au/collections/survey-gps-for-total-stations-distance-and-height-measurer/products/leica-ts01-manual-total-station-for-surveying-and-measurements", sources: ["https://laserman.com.au/collections/survey-gps-for-total-stations-distance-and-height-measurer/products/leica-ts01-manual-total-station-for-surveying-and-measurements", "https://leica-geosystems.com/-/media/files/leicageosystems/products/datasheets/leica%20flexline%20ts01%20ds%20usb%200721en%20lr.pdf"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "survey",
+    score: (a) => a["position-accuracy"] === "survey" ? 99 : 92,
+  },
+  {
+    id: "prodirector7", goals: ["position"], brand: "SL-LASER", name: "ProDirector7 2D Laser Template Projector", category: "2D laser template projection", price: null, priceText: "Contact for inquiry", whyThisFits: "ProDirector7 projects precise 2D templates for large-scale factory work with German SL-Laser precision at ±0.35mm/4.5m. Dual power options (24VDC/240VAC) integrate seamlessly into manufacturing environments for efficient component marking.", primaryUse: "Project laser templates and patterns for large-scale manufacturing: precast concrete elements, prefab building components (rafters, trusses, wall panels), metal fabrication, and industrial assembly. Working range up to 8m+ with 80°×70° field of view for efficient projection across larger components. Available in 24VDC or 240VAC power configurations for flexible factory integration.", industries: ["Precast concrete", "Prefab building manufacturing", "Metal fabrication", "Factory automation", "Industrial manufacturing", "Large-scale assembly"], keySpecs: ["15mW laser output", "2D template projection", "Dual power (24VDC or 240VAC)", "Optimized for large component projection"], included: ["ProDirector7 projector unit", "Mounting brackets", "Power connectivity options"], accessories: ["Custom projection templates", "Mounting brackets", "Power conditioning equipment"], designedFor: "Precast concrete positioning, metalwork marking, industrial positioning, factory-floor production", alternatives: ["Z-Laser ZLP2 for higher-precision compact projection"], upgrade: ["Expert review for integrated CNC workflow systems"], href: "https://laserman.com.au/products/sl-laser-prodirector7-high-performance-projector-laser", sources: ["https://laserman.com.au/products/sl-laser-prodirector7-high-performance-projector-laser", "https://laserman.com.au/collections/sl-laser-product-range-made-in-germany-technology-quality-2d-laser-template-projectors"], confidence: "Expert review",
+    applicable: (a) => a["position-type"] === "layout" && a["layout-environment"] !== "outdoor",
+    score: (a) => a["layout-environment"] === "precision" ? 93 : 70,
+  },
+  {
+    id: "zlp2", goals: ["position"], brand: "Z-LASER", name: "ZLP2 Compact Laser Projector with Z-Fiber Source", category: "High-precision laser template projection", price: null, priceText: "Contact for inquiry", whyThisFits: "ZLP2 delivers best-in-class 0.25mm/meter accuracy with fiber-coupled laser source for demanding template work across aerospace, composites, and precision manufacturing. Configurable wavelengths and compact design adapt to any tight-tolerance application.", primaryUse: "High-precision laser projection for manufacturing across diverse industries: woodworking, automotive, medical devices, metalworking, electronics, and logistics. Fiber-coupled laser source delivers 0.25 mm/meter accuracy for tight-tolerance positioning and alignment. Available in 7 mW or 14 mW power, with 60°×60° or 80°×80° projection angles, and configurable wavelengths (green/red/yellow) to suit specific materials and environments.", industries: ["Composite manufacturing (aerospace)", "Wind turbine blade production", "Aerospace components", "Woodworking", "Automotive manufacturing", "Medical device production", "Metalworking", "Electronics assembly"], keySpecs: ["Fiber-coupled laser source", "0.25mm per meter accuracy (ultra-precision)", "7mW/14mW power options", "60°×60° or 80°×80° angles", "Green/red/yellow wavelengths", "IP65 rated"], included: ["ZLP2 projector unit with fiber coupling", "Power supply module", "Mounting system"], accessories: ["ZLP2-HighPower variant for large-scale production", "Fiber cables", "Mounting systems", "Software integration"], designedFor: "Composite manufacturing (aerospace), wind turbine blade production, aerospace components, high-precision fabrication", alternatives: ["SL-Laser ProDirector7 for larger working distances"], upgrade: ["Expert review for ZLP2-HighPower variant for high-ceiling/large-scale applications"], href: "https://laserman.com.au/products/z-laser-zlp2-compact-laser-projector-with-z-fiber-source", sources: ["https://laserman.com.au/products/z-laser-zlp2-compact-laser-projector-with-z-fiber-source", "https://z-laser.com/en/products/laser-projectors/"], confidence: "Expert review",
+    applicable: (a) => a["position-type"] === "layout",
+    score: (a) => a["layout-environment"] === "precision" ? 95 : 75,
+  },
+  {
+    id: "magicline", goals: ["position"], brand: "MAGICLINE", name: "MagicLine Laser Guide – Class 2M Outdoor Visible Line Laser", category: "Outdoor laser line projection", price: 6076, priceText: "$6,076.00 AUD guide price", whyThisFits: "MagicLine projects bright visible laser lines outdoors in daylight for vehicle positioning and site layout—no beam washout. Eye-safe Class 2M technology eliminates PPE requirements while delivering reliable outdoor line projection.", primaryUse: "Outdoor line laser for site alignment, vehicle positioning, loading bay marking, and field layout work. World's first Class 2M laser visible in daylight, eye-safe without PPE. Ideal for heavy vehicle parking, parking bay maintenance, and outdoor construction positioning.", industries: ["Construction", "Logistics", "Vehicle parking", "Facility management", "Site preparation"], keySpecs: ["Class 2M laser – eye-safe, no PPE required", "Bright line visible in daylight", "Patented outdoor technology", "Outdoor-rated durability", "Line projection only"], included: ["MagicLine laser unit", "Mounting bracket"], accessories: ["Tripod mounting systems", "Carrying case", "Replacement power supply"], designedFor: "Outdoor site alignment, vehicle positioning, loading dock marking, field layout work", alternatives: ["Topcon RL-H5B for horizontal cross-line reference", "ProDirector7/ZLP2 for indoor precision projection"], upgrade: ["Expert review for multi-line outdoor laser systems"], href: "https://laserman.com.au/products/magicline-laser-visible-outdoors-class-2m", sources: ["https://laserman.com.au/products/magicline-laser-visible-outdoors-class-2m", "https://laserman.com.au/blogs/news/park-assist-for-heavy-vehicles-introducing-the-magicline-laser-guide"], confidence: "Verified",
+    applicable: (a) => a["position-type"] === "layout",
+    score: (a) => {
+      if (a["position-environment"] === "outdoor") {
+        return a["position-accuracy"] === "general" ? 80 : a["position-accuracy"] === "specified" ? 50 : 30;
+      }
+      return 45;
+    },
+  },
+  // ============================================================================
+  // CROSS-LINE & MULTI-LINE LASERS
+  // ============================================================================
+  {
+    id: "geo1x",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo1X Green Cross Laser",
+    category: "Cross-line laser level",
+    price: 233,
+    priceText: "$233.00 AUD",
+    primaryUse:
+      "Entry-level cross-line laser for hanging, shelving, and basic interior reference work",
+    whyThisFits:
+      "Geo1X is an affordable, green cross-line laser perfect for budget-conscious work where you just need a quick horizontal and vertical reference. The rubberized housing provides basic durability for job sites, and the ±3mm accuracy is sufficient for rough leveling and visual alignment. A cross-line laser projects just two lines (one horizontal, one vertical), so you manually position it for each wall or area—but this simplicity means lower cost and ease of use for straightforward jobs like hanging cabinets or shelves.",
+    industries: ["Construction", "DIY", "Maintenance"],
+    keySpecs: [
+      "Green cross laser (horizontal + vertical only)",
+      "±3mm accuracy @ 10m",
+      "IP54 rating",
+      "Self-leveling (±3°)",
+      "~20m typical range",
+      "Rubberized housing",
+    ],
+    included: ["Geo1X laser unit", "AA batteries"],
+    accessories: ["Laser glasses", "Tripod mount", "Wall bracket"],
+    designedFor: "Budget reference work, hanging, shelving, interior rough leveling",
+    alternatives: [],
+    upgrade: ["geo-axeo-3d"],
+    href: "https://laserman.com.au/products/geo-fennel-geo1x-green-cross-laser?_pos=1&_sid=d332b27c6&_ss=r",
+    sources: [
+      "https://laserman.com.au/products/geo-fennel-geo1x-green-cross-laser?_pos=1&_sid=d332b27c6&_ss=r",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 50,
+  },
+  {
+    id: "geo-axeo-3d",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel Axeo 3D Multi-Line Laser",
+    category: "360° Multi-line laser",
+    price: 495,
+    priceText: "$495.00 AUD",
+    primaryUse:
+      "Versatile 360° multi-line laser for rough interior/exterior work with flexibility to position lines at any angle",
+    whyThisFits:
+      "Axeo projects 3x360° lines giving you complete room coverage without manual repositioning—every wall gets a reference line simultaneously. Unlike cross-line lasers that need repositioning for each wall, 360° multi-line lasers project continuous lines around the entire room, eliminating time wasted moving equipment. The ±3mm accuracy and 30m range (60m with receiver) make it ideal for rough work. Fine side adjustment and Li-Ion option provide professional convenience at budget pricing. You mark everything at once, then work methodically around the space.",
+    industries: ["Construction", "General contractors"],
+    keySpecs: [
+      "3x360° green lines (full room coverage)",
+      "±3mm / 10m accuracy",
+      "IP54 rating",
+      "Self-leveling (±3°)",
+      "30m range (60m with receiver)",
+      "Fine side adjustment",
+      "Li-Ion or mains powered",
+    ],
+    included: ["Axeo 3D laser unit", "Battery/charger", "Tripod"],
+    accessories: ["Receiver unit", "Additional batteries", "Laser glasses", "Wall mount"],
+    designedFor: "Rough interior/exterior work, versatile 360° coverage, affordable multi-line solution",
+    alternatives: [],
+    upgrade: ["imex-lx3dg", "geo-6x-sp"],
+    href: "https://laserman.com.au/products/geo-fennel-axeo-3d-multi-line-laser",
+    sources: ["https://laserman.com.au/products/geo-fennel-axeo-3d-multi-line-laser"],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 65,
+  },
+  {
+    id: "imex-lx3dg",
+    goals: ["position"],
+    brand: "IMEX",
+    name: "Imex LX3DG Multi-Line Laser Green",
+    category: "360° Multi-line laser",
+    price: 829.95,
+    priceText: "$829.95 AUD",
+    primaryUse:
+      "Rugged mid-range 3x360° multi-line laser with hyperbright lines and extended runtime for demanding job sites",
+    whyThisFits:
+      "LX3DG delivers ±2mm accuracy with hyperbright green lines visible in challenging lighting—essential when working in low-light conditions (dark wall cavities, shade). The 3x360° coverage means every wall is marked without repositioning. Magnetic compensator self-leveling, drop/temperature testing certification, and longest runtime in the range make it ideal for professionals who need durability and visibility. Unlike lower-accuracy lasers, ±2mm precision prevents compounding errors on large projects.",
+    industries: ["Construction", "Flooring", "Electrical"],
+    keySpecs: [
+      "3x360° hyperbright green lines (full room coverage)",
+      "±2mm @ 10m accuracy (mid-range precision)",
+      "IP54 rating",
+      "Magnetic compensator self-leveling",
+      "30m indoor / 80m outdoor range",
+      "Drop and temperature tested",
+      "Longest battery runtime",
+    ],
+    included: ["LX3DG laser unit", "Batteries", "Tripod"],
+    accessories: ["Receiver unit", "Extra batteries", "Laser glasses", "Hard carrying case"],
+    designedFor:
+      "Demanding job sites, low-light conditions, durability-focused work, professional installations",
+    alternatives: [],
+    upgrade: ["geo-6x-sp", "bear-servo-360g"],
+    href: "https://laserman.com.au/products/imex-lx3dg-multi-line-laser-green-beam-3-x-360-lines-laser-level-multi-beam-laser",
+    sources: [
+      "https://laserman.com.au/products/imex-lx3dg-multi-line-laser-green-beam-3-x-360-lines-laser-level-multi-beam-laser",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 70,
+  },
+  {
+    id: "geo-6x-sp",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel Geo 6X SP Green Kit 3x360",
+    category: "360° Multi-line laser (extended range)",
+    price: 995,
+    priceText: "$995.00 AUD",
+    primaryUse:
+      "Long-range outdoor-focused 3x360° multi-line laser with ±2mm accuracy and 140m range—ideal for large construction sites and outdoor reference work",
+    whyThisFits:
+      "Geo 6X SP reaches 140m with receiver, making it essential for large-scale work. The ±2mm accuracy eliminates rework from measurement drift. The 3x360° coverage across all four walls means you mark the entire perimeter once, then work methodically—no repositioning until job phase changes. IP54 weathering handles outdoor exposure. Self-leveling lockable for slope work lets you hold sloped references for grading or drainage. Fine side adjustment suits precision tasks. This is the outdoor workhorse that saves hours on large projects.",
+    industries: ["Construction", "Civil works", "Outdoor projects"],
+    keySpecs: [
+      "3x360° green lines (full room coverage)",
+      "±2mm / 10m accuracy (prevents drift on large projects)",
+      "IP54 rating (outdoor-rated)",
+      "80m range (140m with receiver—longest in range)",
+      "Self-leveling lockable for slope work",
+      "Fine side adjustment",
+      "Professional durability",
+    ],
+    included: ["Geo 6X SP laser unit", "Batteries/charger", "Tripod", "Accessories kit"],
+    accessories: ["Receiver unit", "Extended tripod", "Laser glasses", "Wall mount"],
+    designedFor: "Large construction sites, outdoor work, long-range reference, slope/grade work",
+    alternatives: [],
+    upgrade: ["bear-servo-360g", "leica-lino-l6g-1"],
+    href: "https://laserman.com.au/products/geo-fennel-geo-6x-sp-green-kit-3-x-360-multi-line-laser-level-laser-tools",
+    sources: [
+      "https://laserman.com.au/products/geo-fennel-geo-6x-sp-green-kit-3-x-360-multi-line-laser-level-laser-tools",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 75,
+  },
+  {
+    id: "geo-6x-xr",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel Geo6-XR Green Selection Pro",
+    category: "360° Multi-line laser (tile-specific)",
+    price: 1200,
+    priceText: "$1,200.00 AUD",
+    primaryUse:
+      "Specialist 3x360° multi-line laser designed for tile and flooring installations with floor-level projections",
+    whyThisFits:
+      "Geo6-XR is purpose-built for tilers with right-angle projections at floor level—a critical feature because tile work demands consistent level references at floor height to prevent lippage (step between adjacent tiles). The 3x360° coverage marks all four walls simultaneously, so you see grout lines exactly where they'll be. ±2mm accuracy prevents compounding error across large tile areas. The right-angle floor projections mean tilers don't need to manually calculate or mark angles—the laser does it. This specialist design cuts tiling time significantly and eliminates the most common tiling errors.",
+    industries: ["Tiling", "Flooring", "Joinery"],
+    keySpecs: [
+      "3x360° green lines with right-angle floor projections (tile-specific)",
+      "±2mm / 10m accuracy (prevents lippage errors)",
+      "IP54 rating",
+      "40m range (60m with receiver)",
+      "Self-leveling (±3°)",
+      "Tile/flooring-specific features",
+    ],
+    included: ["Geo6-XR laser unit", "Batteries", "Tripod"],
+    accessories: ["Receiver unit", "Laser glasses", "Flooring mounting bracket"],
+    designedFor: "Tile and flooring installations, large-format tile layout, professional tiling",
+    alternatives: [],
+    upgrade: ["bear-servo-360g"],
+    href: "https://laserman.com.au/products/geo-fennel-geo6-xr-green-selection-pro-line-and-dot-laser",
+    sources: [
+      "https://laserman.com.au/products/geo-fennel-geo6-xr-green-selection-pro-line-and-dot-laser",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 72,
+  },
+  {
+    id: "leica-lino-l6g-1",
+    goals: ["position"],
+    brand: "LEICA",
+    name: "Leica Lino L6G-1 Green Beam 3x360",
+    category: "Premium 360° Multi-line laser",
+    price: 1045,
+    priceText: "$1,045.00 AUD",
+    primaryUse:
+      "Premium professional-grade 3x360° multi-line laser with wide-range self-leveling for continuous working in variable environments",
+    whyThisFits:
+      "Leica Lino combines premium build quality with wide-range self-leveling—critical for work with uneven floors or sloped ceilings (the laser stays leveled automatically across slopes, unlike lasers that lock out). The 3x360° coverage marks all walls simultaneously. 80m range with receiver and professional-grade reliability make it ideal for electricians, plumbers, and builders handling hybrid indoor/outdoor work. Wide self-leveling means no manual adjustments when moving between rooms with different heights or when working in older homes with uneven construction.",
+    industries: ["Electrical", "Plumbing", "Construction"],
+    keySpecs: [
+      "3x360° green lines (full room coverage)",
+      "Wide-range self-leveling (works on uneven floors/slopes)",
+      "80m range (with receiver)",
+      "Premium professional-grade build",
+      "Continuous working capability",
+      "Industry-standard accuracy",
+    ],
+    included: ["Lino L6G-1 laser unit", "Batteries", "Tripod"],
+    accessories: ["Receiver unit", "Laser glasses", "Premium carrying case"],
+    designedFor:
+      "Professional hybrid work, variable ceiling heights, continuous working, premium reliability requirement",
+    alternatives: [],
+    upgrade: ["bear-servo-360g"],
+    href: "https://laserman.com.au/products/leica-lino-l6g-1-green-beam-3x360-laser-levels-cross-and-receiver",
+    sources: [
+      "https://laserman.com.au/products/leica-lino-l6g-1-green-beam-3x360-laser-levels-cross-and-receiver",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 78,
+  },
+  {
+    id: "bear-servo-360g",
+    goals: ["position"],
+    brand: "BEAR",
+    name: "Bear Servo 360G Green Multi-Line Laser",
+    category: "Precision 360° Multi-line laser",
+    price: 1333.2,
+    priceText: "$1,333.20 AUD",
+    primaryUse:
+      "Most accurate 360° multi-line laser (±1mm) with manual slope function for professional cabinetry, precision tiling, and site leveling work",
+    whyThisFits:
+      "Bear Servo delivers ±1mm accuracy—the gold standard for precision trades. The 3x360° coverage marks all four walls simultaneously at ±1mm tolerance, eliminating compounding error that cross-line lasers create when you reposition for each wall. The manual slope function (±5° range) lets you hold a sloped reference for grading, drainage, or complex terrain. This is the go-to tool for cabinet makers demanding exact shelf alignment, precision tilers preventing lippage, and builders handling complex site work. Unlike basic multi-lines, this ±1mm accuracy prevents the 5-10mm drift that kills finishes.",
+    industries: ["Cabinetry", "Tiling", "Construction"],
+    keySpecs: [
+      "3x360° green lines (full room coverage, no repositioning)",
+      "±1mm / 10m accuracy (gold standard—prevents drift)",
+      "IP54 rating",
+      "Interior 360° / 80m outdoor range",
+      "Manual slope function for grade work",
+      "±5° self-leveling range",
+      "Professional trade tool",
+    ],
+    included: ["Bear Servo 360G laser unit", "Batteries", "Tripod"],
+    accessories: ["Receiver unit", "Laser glasses", "Professional carrying case"],
+    designedFor:
+      "Precision cabinetry, high-accuracy tiling, site leveling, professional grade tolerance work",
+    alternatives: [],
+    upgrade: [],
+    href: "https://laserman.com.au/products/bear-servo-360g-green-multi-line-laser-level-green-beam-laser-level",
+    sources: [
+      "https://laserman.com.au/products/bear-servo-360g-green-multi-line-laser-level-green-beam-laser-level",
+    ],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 85,
+  },
+  {
+    id: "geo-flg-70",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel FLG 70 Green Multi-Line Laser",
+    category: "Premium motorized 360° Multi-line laser",
+    price: 1800,
+    priceText: "$1,800.00 AUD",
+    primaryUse:
+      "Highest-accuracy (±1mm) motorized self-leveling 360° multi-line laser for specialist professional installations requiring absolute precision and automatic compensation",
+    whyThisFits:
+      "FLG 70 is the premium precision tool combining motorized self-leveling with ±1mm accuracy and 3x360° coverage. The motorized leveling automatically compensates for uneven floors or sloped ceilings without manual adjustment—critical for complex installations like cathedral ceilings, Victorian homes, or multi-level spaces. The ±1mm accuracy across full-room 360° coverage prevents the drift that creates visible imperfections. Automatic compensation means no stopping to manually adjust for height changes. This is the choice for specialists handling demanding projects where accuracy is non-negotiable and efficiency saves days of work.",
+    industries: ["Specialist contractors", "High-precision installation"],
+    keySpecs: [
+      "3x360° green lines (full room coverage, automatic compensation)",
+      "±1mm / 10m accuracy (highest in range)",
+      "IP54 rating",
+      "Motorized self-leveling (automatic compensation for slopes)",
+      "Variable receiver range",
+      "Premium professional-grade",
+      "Automatic compensation",
+    ],
+    included: ["FLG 70 laser unit", "Batteries", "Tripod"],
+    accessories: ["Advanced receiver options", "Laser glasses", "Premium case"],
+    designedFor: "Specialist installations, absolute precision requirement, motorized convenience",
+    alternatives: [],
+    upgrade: [],
+    href: "https://laserman.com.au/products/geo-fennel-flg-70-green-multi-line-laser",
+    sources: ["https://laserman.com.au/products/geo-fennel-flg-70-green-multi-line-laser"],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 90,
+  },
+
+  // LASER RECEIVERS
+  {
+    id: "geo-fennel-fr-55",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel FR-55 Laser Receiver",
+    category: "Single-line laser receiver",
+    price: 0,
+    priceText: "Contact for pricing",
+    primaryUse: "Budget receiver for cross-line (single-line) laser work, detects one line at a time",
+    whyThisFits: "The FR-55 is an entry-level receiver designed specifically for cross-line lasers. It detects a single laser line at a time, making it ideal for budget-conscious users working with basic cross-line laser levels. Perfect for jobs where you manually reposition the laser for each wall.",
+    industries: ["Construction", "DIY", "General work"],
+    keySpecs: [
+      "Single-line detection",
+      "Cross-line laser compatible",
+      "Standard readout",
+      "Compact design",
+      "Battery powered",
+    ],
+    included: ["FR-55 receiver", "Batteries", "Mounting clamp"],
+    accessories: ["Tripod mount", "Carrying case"],
+    designedFor: "Budget single-line laser work, cross-line laser detection",
+    alternatives: [],
+    upgrade: ["geo-fennel-fr-75", "onyx-omni-60"],
+    href: "https://laserman.com.au/products/geo-fennel-fr-55-laser-detector-laser-receiver-for-laser-level-cross-laser-line-laser-laser-tools",
+    sources: ["https://laserman.com.au/products/geo-fennel-fr-55-laser-detector-laser-receiver-for-laser-level-cross-laser-line-laser-laser-tools"],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 60,
+  },
+
+  {
+    id: "geo-fennel-fr-75",
+    goals: ["position"],
+    brand: "GEO-FENNEL",
+    name: "Geo-Fennel FR-75 MM Laser Receiver",
+    category: "Multi-line laser receiver",
+    price: 0,
+    priceText: "Contact for pricing",
+    primaryUse: "Professional receiver for multi-line lasers with millimeter precision readout",
+    whyThisFits: "The FR-75 MM is engineered for multi-line lasers that project multiple simultaneous lines. The 'MM' designation means millimeter-precision readout, giving you accuracy down to 1mm increments. Essential for professional installations where multiple lines are projected continuously without repositioning.",
+    industries: ["Construction", "Professional contractors", "Tiling"],
+    keySpecs: [
+      "Multi-line laser detection",
+      "Millimeter (MM) precision readout",
+      "Detects multiple simultaneous lines",
+      "Professional-grade accuracy",
+      "Battery powered",
+    ],
+    included: ["FR-75 receiver", "Batteries", "Mounting clamp"],
+    accessories: ["Tripod mount", "Carrying case"],
+    designedFor: "Professional multi-line laser work, precision installations",
+    alternatives: [],
+    upgrade: ["onyx-omni-60"],
+    href: "https://laserman.com.au/products/geo-fennel-fr-75-mm-laser-detector-laser-receiver-for-laser-level-cross-laser-multi-line-laser",
+    sources: ["https://laserman.com.au/products/geo-fennel-fr-75-mm-laser-detector-laser-receiver-for-laser-level-cross-laser-multi-line-laser"],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 75,
+  },
+
+  {
+    id: "onyx-omni-60",
+    goals: ["position"],
+    brand: "ONYX",
+    name: "Onyx Omni 60 Universal Receiver",
+    category: "Universal laser receiver",
+    price: 440,
+    priceText: "$440.00 AUD",
+    primaryUse: "Premium universal receiver compatible with both single-line and multi-line lasers, works with rotary and handheld levels",
+    whyThisFits: "The Omni 60 is the most versatile receiver on the market—it works with rotary lasers (up to 200m range), cross-line lasers, and multi-line lasers. The 0.5mm digital readout provides professional-grade precision. If you work with multiple laser types or want one receiver that handles everything, the Omni 60 eliminates the need for separate receivers.",
+    industries: ["Professional contractors", "Mixed-laser work", "Precision applications"],
+    keySpecs: [
+      "Universal receiver (rotary + line lasers)",
+      "0.5mm digital readout (highest precision)",
+      "Rotary range: 200m radius",
+      "Line range: 75m radius",
+      "Green & Red beam compatible (510-650nm)",
+      "Made in Germany",
+    ],
+    included: ["Omni 60 receiver", "AA battery", "Mounting clamp"],
+    accessories: ["Tripod mount", "Laser glasses"],
+    designedFor: "Universal compatibility, professional work, mixed laser types, high precision",
+    alternatives: [],
+    upgrade: [],
+    href: "https://laserman.com.au/products/onyx-omni-60-universal-receiver-0-5mm-readout",
+    sources: ["https://laserman.com.au/products/onyx-omni-60-universal-receiver-0-5mm-readout"],
+    confidence: "Verified",
+    applicable: () => true,
+    score: () => 85,
+  },
+];
+
+export type Recommendation = {
+  product: KnowledgeProduct;
+  role: "best" | "alternative" | "upgrade";
+};
+
+export type RecommendationSet = {
+  recommendations: Recommendation[];
+  needsExpertReview: boolean;
+  message: string;
+};
+
+export function getRecommendations(goal: FinderGoal, answers: Answers): RecommendationSet {
+  // Define the question order for each goal (must match ROUTES in Home.tsx)
+  // Note: position and measure paths are now dynamic based on selected type
+  const questionIdsByGoal = {
+    find: (answers: Answers) => {
+      if (answers["find-type"] === "electrical") {
+        return ["find-type"];
+      }
+      return ["find-type", "find-depth", "find-trace"];
+    },
+    measure: (answers: Answers) => {
+      if (answers["measure-type"] === "distance") {
+        return ["measure-type", "measure-range"];
+      } else if (answers["measure-type"] === "moisture") {
+        return ["measure-type", "moisture-substrate"];
+      } else if (answers["measure-type"] === "temperature") {
+        return ["measure-type"];
+      }
+      return ["measure-type"];
+    },
+    position: (answers: Answers) => {
+      if (answers["position-type"] === "rotary-levels") {
+        // Indoor levels don't ask for range, so don't include it in the path key
+        if (answers["position-environment"] === "indoor") {
+          return ["position-type", "position-environment", "position-accuracy"];
+        }
+        return ["position-type", "position-environment", "position-accuracy", "position-range"];
+      } else if (answers["position-type"] === "laser-levels") {
+        // Laser levels: trade → environment → accuracy → coverage
+        // For outdoor work, coverage defaults to "reflines" since 360° walls don't exist outdoors
+        if (answers["laser-environment"] === "outdoor" && !answers["laser-coverage"]) {
+          answers = { ...answers, "laser-coverage": "reflines" };
+        }
+        return ["laser-trade", "laser-environment", "laser-accuracy", "laser-coverage"];
+      } else if (answers["position-type"] === "receivers") {
+        // Receivers: just receiver-type
+        return ["receiver-type"];
+      } else if (answers["position-type"] === "layout") {
+        return ["position-type", "layout-environment"];
+      } else if (answers["position-type"] === "survey") {
+        // Survey type doesn't have environment/range questions (TS01 always)
+        return ["position-type"];
+      }
+      return ["position-type"];
+    },
+    lasers: (answers: Answers) => {
+      // Laser levels use their own question flow
+      return ["laser-trade", "laser-environment", "laser-accuracy", "laser-coverage"];
+    },
+  };
+
+  const questionIds = typeof questionIdsByGoal[goal] === "function"
+    ? (questionIdsByGoal[goal] as (a: Answers) => string[])(answers)
+    : (questionIdsByGoal[goal] as string[]);
+  const path = lookupRecommendationPath(goal, answers, questionIds);
+
+  if (!path) {
+    return {
+      recommendations: [],
+      needsExpertReview: true,
+      message: "No verified product matches these requirements. A Laserman expert can help confirm the best fit.",
+    };
+  }
+
+  // Look up products by ID
+  const getProductById = (id: string) => KNOWLEDGE_PRODUCTS.find((p) => p.id === id);
+
+  const bestProduct = getProductById(path.best);
+  if (!bestProduct) {
+    console.error(`[Product Finder] Product not found: ${path.best}`);
+    return {
+      recommendations: [],
+      needsExpertReview: true,
+      message: "No verified product matches these requirements. A Laserman expert can help confirm the best fit.",
+    };
+  }
+
+  const recommendations: Recommendation[] = [{ product: bestProduct, role: "best" }];
+
+  // Add alternative if defined
+  if (path.alternative) {
+    const altProduct = getProductById(path.alternative);
+    if (altProduct) {
+      recommendations.push({ product: altProduct, role: "alternative" });
+    }
+  }
+
+  // Add upgrade if defined
+  if (path.upgrade) {
+    const upgradeProduct = getProductById(path.upgrade);
+    if (upgradeProduct) {
+      recommendations.push({ product: upgradeProduct, role: "upgrade" });
+    }
+  }
+
+  return {
+    recommendations,
+    needsExpertReview: bestProduct.confidence === "Expert review",
+    message: `This is the best technical fit for your application. See price, specs and compatible accessories below.`,
+  };
+}

@@ -1,0 +1,85 @@
+/**
+ * CROSS-LINE & MULTI-LINE LASER RECOMMENDATION PATHS
+ * 60 paths covering all combinations of:
+ * - 5 trades: builders, cabinets, tilers, electricians, plumbers
+ * - 3 locations: indoor, outdoor, both
+ * - 2 accuracy levels: high, rough
+ * - 2 coverage types: 360, reflines
+ *
+ * Path key format: {trade}_{location}_{accuracy}_{coverage}
+ * Example: builders_indoor_high_360
+ */
+
+import type { RecommendationPath } from "./recommendationPaths";
+
+export const LASER_PATHS: Record<string, RecommendationPath & { upgradeReason?: string }> = {
+  // BUILDERS
+  "builders_indoor_high_360": { best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Motorized self-leveling for complex drop ceilings and variable ceiling heights." },
+  "builders_indoor_high_reflines": { best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning. ±1mm precision suits high-accuracy interior work." },
+  "builders_indoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "imex-lx3dg", upgradeReason: "Upgrade for ±2mm accuracy and hyperbright lines in low-light conditions." },
+  "builders_indoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage speeds up work by eliminating manual repositioning." },
+  "builders_outdoor_high_360": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "140m receiver range essential for large sites. Bear Servo for slope/grade compensation." },
+  "builders_outdoor_high_reflines": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage eliminates repositioning on large sites." },
+  "builders_outdoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP for larger outdoor sites with extended range." },
+  "builders_outdoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "Upgrade to 360° coverage for multi-area outdoor work." },
+  "builders_both_high_360": { best: "bear-servo-360g", alternative: "geo-6x-sp", upgrade: "geo-flg-70", upgradeReason: "Hybrid work needs versatility. FLG 70 motorized leveling handles complex conditions." },
+  "builders_both_high_reflines": { best: "imex-lx3dg", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage essential for hybrid indoor/outdoor phases." },
+  "builders_both_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP handles both environments with consistent accuracy." },
+  "builders_both_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage accelerates hybrid workflow." },
+
+  // CABINET MAKERS & JOINERS
+  "cabinets_indoor_high_360": { best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "Cabinet work demands ±1mm. FLG 70 motorized leveling for complex installations." },
+  "cabinets_indoor_high_reflines": { best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage prevents misalignment between reference lines and final positioning." },
+  "cabinets_indoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "imex-lx3dg", upgradeReason: "LX3DG's ±2mm and hyperbright lines improve alignment feedback." },
+  "cabinets_indoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage accelerates layout marking." },
+  "cabinets_outdoor_high_360": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "Outdoor cabinetry needs weathering. Bear Servo if tolerances extreme." },
+  "cabinets_outdoor_high_reflines": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage for multi-panel outdoor installations." },
+  "cabinets_outdoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP handles larger installations with better durability." },
+  "cabinets_outdoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage for multi-panel outdoor installations." },
+  "cabinets_both_high_360": { best: "bear-servo-360g", alternative: "geo-6x-sp", upgrade: "geo-flg-70", upgradeReason: "Hybrid precision needs reliability. FLG 70 eliminates manual adjustment." },
+  "cabinets_both_high_reflines": { best: "imex-lx3dg", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage essential for hybrid reference work." },
+  "cabinets_both_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Better range and durability for larger hybrid projects." },
+  "cabinets_both_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° efficiency accelerates hybrid workflow." },
+
+  // TILERS
+  "tilers_indoor_high_360": { best: "bear-servo-360g", alternative: "geo-6x-xr", upgrade: "geo-flg-70", upgradeReason: "Large-format tiles need ±1mm precision. FLG 70 motorized for complex layouts." },
+  "tilers_indoor_high_reflines": { best: "geo-6x-xr", alternative: "imex-lx3dg", upgrade: "bear-servo-360g", upgradeReason: "Geo6-XR designed for tilers. Upgrade to Bear Servo for full 360° coverage." },
+  "tilers_indoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-xr", upgradeReason: "Geo6-XR's tiler-specific features dramatically reduce layout errors." },
+  "tilers_indoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° prevents misalignment between opposite corners." },
+  "tilers_outdoor_high_360": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "Patio tiling needs IP54 durability. Bear Servo for ultra-tight patterns." },
+  "tilers_outdoor_high_reflines": { best: "geo-6x-xr", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "360° coverage for multi-section outdoor tiling." },
+  "tilers_outdoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP improves consistency on larger patios." },
+  "tilers_outdoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° eliminates repositioning on outdoor multi-section jobs." },
+  "tilers_both_high_360": { best: "geo-6x-xr", alternative: "bear-servo-360g", upgrade: "geo-flg-70", upgradeReason: "Hybrid tiling needs specialist accuracy. FLG 70 handles cathedral ceilings." },
+  "tilers_both_high_reflines": { best: "geo-6x-xr", alternative: "imex-lx3dg", upgrade: "bear-servo-360g", upgradeReason: "360° coverage essential for hybrid phases." },
+  "tilers_both_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP handles both with consistent accuracy." },
+  "tilers_both_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° efficiency maintains pattern consistency across phases." },
+
+  // ELECTRICIANS
+  "electricians_indoor_high_360": { best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "±1mm precision for grid alignment. FLG 70 motorized for variable ceiling heights." },
+  "electricians_indoor_high_reflines": { best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "Bright lines for dark conduit chases. 360° coverage eliminates repositioning." },
+  "electricians_indoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Upgrade when precision becomes critical on active sites." },
+  "electricians_indoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° marks all wall references simultaneously." },
+  "electricians_outdoor_high_360": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "140m range for outdoor poles. Bear Servo for grid precision." },
+  "electricians_outdoor_high_reflines": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage for multi-area grid work." },
+  "electricians_outdoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP for larger outdoor distributions." },
+  "electricians_outdoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage for multi-area sites." },
+  "electricians_both_high_360": { best: "bear-servo-360g", alternative: "leica-lino-l6g-1", upgrade: "geo-flg-70", upgradeReason: "±1mm precision for grid work. FLG 70 motorized for variable heights." },
+  "electricians_both_high_reflines": { best: "imex-lx3dg", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Upgrade for wide self-leveling on variable heights." },
+  "electricians_both_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP handles both environments." },
+  "electricians_both_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° eliminates multi-room repositioning." },
+
+  // PLUMBERS
+  "plumbers_indoor_high_360": { best: "leica-lino-l6g-1", alternative: "bear-servo-360g", upgrade: "geo-flg-70", upgradeReason: "Wide self-leveling for slope/grade work. FLG 70 motorized for complex installs." },
+  "plumbers_indoor_high_reflines": { best: "imex-lx3dg", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "Bright lines for dark chases. 360° coverage prevents misalignment." },
+  "plumbers_indoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Upgrade when slope precision becomes critical." },
+  "plumbers_indoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° marks references simultaneously." },
+  "plumbers_outdoor_high_360": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "Drainage needs slope accuracy. Bear Servo for complex terrain." },
+  "plumbers_outdoor_high_reflines": { best: "geo-6x-sp", alternative: null, upgrade: "bear-servo-360g", upgradeReason: "360° coverage for multi-section drainage work." },
+  "plumbers_outdoor_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP for larger drainage projects." },
+  "plumbers_outdoor_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° coverage for multi-section drainage." },
+  "plumbers_both_high_360": { best: "leica-lino-l6g-1", alternative: "geo-6x-sp", upgrade: "bear-servo-360g", upgradeReason: "Hybrid plumbing needs wide self-leveling. Bear Servo manual slope for grades." },
+  "plumbers_both_high_reflines": { best: "imex-lx3dg", alternative: null, upgrade: "leica-lino-l6g-1", upgradeReason: "Upgrade for wide self-leveling across variable heights." },
+  "plumbers_both_rough_360": { best: "geo-axeo-3d", alternative: null, upgrade: "geo-6x-sp", upgradeReason: "Geo 6X SP handles both phases with consistency." },
+  "plumbers_both_rough_reflines": { best: "geo1x", alternative: null, upgrade: "geo-axeo-3d", upgradeReason: "360° maintains slope consistency across phases." },
+};
