@@ -63,7 +63,21 @@ type Question = {
   condition?: (answers: Answers) => boolean;
 };
 
-const ASSETS = {
+/**
+ * Files in `public/assets` are served under Vite's configured `base`, which on
+ * GitHub Pages is "/laserman-product-finder/". Vite only rewrites asset URLs it
+ * can see (imports, HTML attributes) — plain string literals like the ones below
+ * are left alone, so prefix them at runtime instead of hand-editing every entry.
+ */
+const withBase = <T extends Record<string, string>>(map: T): T =>
+  Object.fromEntries(
+    Object.entries(map).map(([key, url]) => [
+      key,
+      url.startsWith("/assets/") ? `${import.meta.env.BASE_URL}${url.slice(1)}` : url,
+    ]),
+  ) as T;
+
+const ASSETS = withBase({
   logo: "/assets/laserman-logo.png",
   cat4: "/assets/radiodetection-cat4-kit.jpg",
   cscope: "/assets/cscope-mxl4d-kit.jpg",
@@ -76,9 +90,9 @@ const ASSETS = {
   mt915: "/assets/major-tech-mt915.jpg",
   tramexLogo: "/assets/tramex-logo.png",
   flukeLogo: "/assets/fluke-industrial-logo.png",
-};
+});
 
-const PRODUCT_IMAGES: Record<string, string> = {
+const PRODUCT_IMAGES: Record<string, string> = withBase({
   cat4: ASSETS.cat4,
   cscope: ASSETS.cscope,
   mt195: "/assets/major-tech-mt195.jpg",
@@ -116,7 +130,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "geo-fennel-fr-55": "/assets/fr55.webp",
   "geo-fennel-fr-75": "/assets/fr75.webp",
   "onyx-omni-60": "/assets/onyx.webp",
-};
+});
 
 /**
  * Full ordered image gallery for a product. Falls back to the single

@@ -206,6 +206,8 @@ function vitePluginStorageProxy(): Plugin {
 const plugins = [react(), tailwindcss(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
 export default defineConfig({
+  // Project-page base path for https://ben-creighton.github.io/laserman-product-finder/
+  base: "/laserman-product-finder/",
   plugins,
   resolve: {
     alias: {
